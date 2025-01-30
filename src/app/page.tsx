@@ -2,12 +2,13 @@
 
 import dynamic from "next/dynamic";
 import { useMemo } from "react";
+import Loading from "@/components/Loading";
 
 const Home = () => {
   const Map = useMemo(
     () =>
       dynamic(() => import("@/components/Map"), {
-        loading: () => <p>A map is loading</p>,
+        loading: () => <Loading />,
         ssr: false,
       }),
     []
@@ -15,8 +16,8 @@ const Home = () => {
 
   return (
     <>
-      <div className="bg-white-700 mx-auto my-5 w-[98%] h-[480px]">
-        <Map posix={[4.79029, -75.69003]} />
+      <div className="flex">
+        <Map posix={[19.0859811, 72.8639597]} />
       </div>
     </>
   );

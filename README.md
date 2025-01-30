@@ -2,7 +2,7 @@
 
 An open-source Google Maps alternative made using OpenStreetMaps
 
-## How to Use the OpenStreetMaps Feature
+## How to use WayFinder in development
 
 1. Clone the repository:
    ```sh
@@ -20,4 +20,16 @@ An open-source Google Maps alternative made using OpenStreetMaps
    npm run dev
    ```
 
-4. Open your browser and navigate to `http://localhost:3000`. You should see the OpenStreetMaps map displayed.
+4. Open your browser and navigate to `http://localhost:3000`.
+
+## How to use WayFinder in production
+
+1. Build the project:
+   ```sh
+   npm run build
+   ```
+
+2. Start the production server:
+   ```sh
+   npm start
+   ```
