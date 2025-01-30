@@ -1,22 +1,42 @@
 "use client";
 
-import { useEffect, useRef } from 'react';
-import L from 'leaflet';
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { LatLngExpression, LatLngTuple } from "leaflet";
 
-const Map = () => {
-  const mapRef = useRef(null);
+import "leaflet/dist/leaflet.css";
+import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
+import "leaflet-defaulticon-compatibility";
 
-  useEffect(() => {
-    if (mapRef.current) {
-      const map = L.map(mapRef.current).setView([51.505, -0.09], 13);
+interface MapProps {
+  posix: LatLngExpression | LatLngTuple;
+  zoom?: number;
+}
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      }).addTo(map);
-    }
-  }, []);
+const defaults = {
+  zoom: 19,
+};
 
-  return <div id="map" ref={mapRef} style={{ height: '100vh', width: '100%' }} />;
+const Map = (Map: MapProps) => {
+  const { zoom = defaults.zoom, posix } = Map;
+
+  return (
+    <div id="map" style={{ height: "100vh", width: "100%" }}>
+      <MapContainer
+        center={posix}
+        zoom={zoom}
+        scrollWheelZoom={false}
+        style={{ height: "100%", width: "100%" }}
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <Marker position={posix} draggable={false}>
+          <Popup>Hey ! I study here</Popup>
+        </Marker>
+      </MapContainer>
+    </div>
+  );
 };
 
 export default Map;
