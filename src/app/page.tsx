@@ -1,7 +1,7 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { useMemo } from "react";
+import dynamic from "next/dynamic";
 import Loading from "@/components/Loading";
 
 const Home = () => {

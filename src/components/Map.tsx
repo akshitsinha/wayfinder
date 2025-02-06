@@ -1,15 +1,18 @@
 "use client";
 
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import { LatLngExpression, LatLngTuple, polygon } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import "leaflet-defaulticon-compatibility";
 import "leaflet-control-geocoder/dist/Control.Geocoder.css";
 import { geocoder as geoCoder } from "leaflet-control-geocoder";
+import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
-import { MapPinCheck, MapPinMinus, Navigation } from "lucide-react";
+import { Locate, Menu } from "lucide-react";
+import Marker from "@/components/Marker";
+import UserMenu from "@/components/UserMenu";
+import store from "store2";
 
 interface MapProps {
   posix: LatLngExpression | LatLngTuple;
@@ -47,10 +50,7 @@ const SearchControl = ({
       })
       .addTo(map);
 
-    const searchContainer = geocoder.getContainer();
-    if (searchContainer) {
-      searchContainer.style.color = "black";
-    }
+    geocoder.setPosition("bottomright");
 
     return () => {
       map.removeControl(geocoder);
@@ -60,15 +60,70 @@ const SearchControl = ({
   return null;
 };
 
+const LocateButton = () => {
+  const map = useMap();
+
+  const locateUser = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          const userLocation: LatLngExpression = [latitude, longitude];
+          map.setView(userLocation);
+        },
+        (error) => {
+          console.error("Error getting user location:", error);
+        }
+      );
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+    }
+  };
+
+  return (
+    <Button
+      variant="secondary"
+      onClick={locateUser}
+      className="absolute top-20 left-2.5 z-[1000]"
+    >
+      <Locate size={24} />
+    </Button>
+  );
+};
+
 const Map = (map: MapProps) => {
   const { zoom = defaults.zoom, posix } = map;
   const [markerPosition, setMarkerPosition] = useState<{
     position: LatLngExpression;
     address: string;
   } | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [markedLocations, setMarkedLocations] = useState<{
+    position: LatLngExpression;
+    address: string;
+  }[]>([]);
+  const mapRef = useRef<L.Map>(null);
+
+  useEffect(() => {
+    const storedLocations = store.get("markedLocations") || [];
+    setMarkedLocations(storedLocations);
+  }, []);
+
+  const handleLocationClick = (position: [number, number]) => {
+    if (mapRef.current) {
+      mapRef.current.setView(position);
+      setMenuOpen(false);
+    }
+  };
+
+  const MapEvents = () => {
+    const map = useMap();
+    mapRef.current = map;
+    return null;
+  };
 
   return (
-    <div id="map" className="h-screen w-full">
+    <div id="map" className="h-screen w-full relative">
       <MapContainer
         center={posix}
         zoom={zoom}
@@ -85,38 +140,34 @@ const Map = (map: MapProps) => {
           }
         />
         {markerPosition && (
-          <Marker position={markerPosition.position}>
-            <Popup>
-              <div>
-                <h2>{markerPosition.address}</h2>
-                <p>Geolocation: {markerPosition.position.toString()}</p>
-                <div className="flex space-x-2">
-                  <Button
-                    variant="secondary"
-                    onClick={() => console.log("Marked location")}
-                  >
-                    <MapPinCheck size={18} />
-                    Mark
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    onClick={() => console.log("Start navigation")}
-                  >
-                    <Navigation size={18} />
-                    Navigate
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    onClick={() => setMarkerPosition(null)}
-                  >
-                    <MapPinMinus size={18} />
-                    Clear
-                  </Button>
-                </div>
-              </div>
-            </Popup>
-          </Marker>
+          <Marker
+            position={markerPosition.position}
+            address={markerPosition.address}
+            onClear={() => setMarkerPosition(null)}
+          />
         )}
+        {markedLocations.map((location, index) => (
+          <Marker
+            key={index}
+            position={location.position as LatLngExpression}
+            address={location.address}
+            onClear={() => {
+              setMarkedLocations((prev) =>
+                prev.filter((_, i) => i !== index)
+              );
+            }}
+          />
+        ))}
+        <LocateButton />
+        <Button
+          variant="secondary"
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="absolute top-4 right-4 z-[1000]"
+        >
+          <Menu size={24} />
+        </Button>
+        {menuOpen && <UserMenu onClose={() => setMenuOpen(false)} onLocationClick={handleLocationClick} />}
+        <MapEvents />
       </MapContainer>
     </div>
   );
