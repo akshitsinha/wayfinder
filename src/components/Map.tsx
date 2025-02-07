@@ -1,7 +1,7 @@
 "use client";
 
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
-import { LatLngExpression, LatLngTuple, polygon } from "leaflet";
+import { LatLng, LatLngExpression, LatLngTuple, polygon } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import "leaflet-defaulticon-compatibility";
@@ -18,6 +18,11 @@ interface MapProps {
   posix: LatLngExpression | LatLngTuple;
   zoom?: number;
 }
+
+export type MarkedLocation = {
+  address: string;
+  position: LatLngExpression;
+};
 
 const defaults = {
   zoom: 14,
@@ -98,20 +103,25 @@ const Map = (map: MapProps) => {
     address: string;
   } | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [markedLocations, setMarkedLocations] = useState<
-    {
-      position: LatLngExpression;
-      address: string;
-    }[]
-  >([]);
+  const [markedLocations, setMarkedLocations] = useState<MarkedLocation[]>([]);
   const mapRef = useRef<L.Map>(null);
 
   useEffect(() => {
-    const storedLocations = store.get("markedLocations") || [];
-    setMarkedLocations(storedLocations);
+    const storedLocations: MarkedLocation[] =
+      store.get("markedLocations") || [];
+
+    setMarkedLocations(
+      storedLocations.map((location) => {
+        const { lat, lng } = location.position as LatLng;
+        return {
+          ...location,
+          position: new LatLng(lat, lng),
+        };
+      }),
+    );
   }, []);
 
-  const handleLocationClick = (position: [number, number]) => {
+  const handleLocationClick = (position: LatLngExpression) => {
     if (mapRef.current) {
       mapRef.current.setView(position);
       setMenuOpen(false);
@@ -151,7 +161,7 @@ const Map = (map: MapProps) => {
         {markedLocations.map((location, index) => (
           <Marker
             key={index}
-            position={location.position as LatLngExpression}
+            position={location.position}
             address={location.address}
             onClear={() => {
               setMarkedLocations((prev) => prev.filter((_, i) => i !== index));

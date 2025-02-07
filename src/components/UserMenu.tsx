@@ -1,19 +1,16 @@
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { LatLngExpression } from "leaflet";
+import { X } from "lucide-react";
 import store from "store2";
-
-type MarkedLocation = {
-  address: string;
-  position: [number, number];
-};
+import { MarkedLocation } from "@/components/Map";
 
 const UserMenu = ({
   onClose,
   onLocationClick,
 }: {
   onClose: () => void;
-  onLocationClick: (position: [number, number]) => void;
+  onLocationClick: (position: LatLngExpression) => void;
 }) => {
   const markedLocations: MarkedLocation[] = store.get("markedLocations");
 

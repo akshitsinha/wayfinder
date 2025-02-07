@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Marker, Popup } from "react-leaflet";
 import { LatLngExpression } from "leaflet";
 import { MapPinCheck, MapPinMinus, Navigation } from "lucide-react";
+import { MarkedLocation } from "@/components/Map";
 import store from "store2";
 
 interface MarkerProps {
@@ -12,26 +13,25 @@ interface MarkerProps {
 
 const CustomMarker = ({ position, address, onClear }: MarkerProps) => {
   const markLocation = () => {
-    const markedLocations = store.get("markedLocations") || [];
+    const markedLocations: MarkedLocation[] =
+      store.get("markedLocations") || [];
+
     const isDuplicate = markedLocations.some(
-      (location: { address: string; position: LatLngExpression }) =>
-        location.address === address,
+      (location) => location.address === address,
     );
 
     if (!isDuplicate) {
       markedLocations.push({ address, position });
       store.set("markedLocations", markedLocations);
-      console.log("Marked location");
     } else {
       console.log("Location already marked");
     }
   };
 
   const clearLocation = () => {
-    let markedLocations = store.get("markedLocations") || [];
+    let markedLocations: MarkedLocation[] = store.get("markedLocations") || [];
     markedLocations = markedLocations.filter(
-      (location: { address: string; position: LatLngExpression }) =>
-        location.address !== address,
+      (location) => location.address !== address,
     );
     store.set("markedLocations", markedLocations);
     onClear();
