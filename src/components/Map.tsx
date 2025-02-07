@@ -73,7 +73,7 @@ const LocateButton = () => {
         },
         (error) => {
           console.error("Error getting user location:", error);
-        }
+        },
       );
     } else {
       console.error("Geolocation is not supported by this browser.");
@@ -98,10 +98,12 @@ const Map = (map: MapProps) => {
     address: string;
   } | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [markedLocations, setMarkedLocations] = useState<{
-    position: LatLngExpression;
-    address: string;
-  }[]>([]);
+  const [markedLocations, setMarkedLocations] = useState<
+    {
+      position: LatLngExpression;
+      address: string;
+    }[]
+  >([]);
   const mapRef = useRef<L.Map>(null);
 
   useEffect(() => {
@@ -152,9 +154,7 @@ const Map = (map: MapProps) => {
             position={location.position as LatLngExpression}
             address={location.address}
             onClear={() => {
-              setMarkedLocations((prev) =>
-                prev.filter((_, i) => i !== index)
-              );
+              setMarkedLocations((prev) => prev.filter((_, i) => i !== index));
             }}
           />
         ))}
@@ -166,7 +166,12 @@ const Map = (map: MapProps) => {
         >
           <Menu size={24} />
         </Button>
-        {menuOpen && <UserMenu onClose={() => setMenuOpen(false)} onLocationClick={handleLocationClick} />}
+        {menuOpen && (
+          <UserMenu
+            onClose={() => setMenuOpen(false)}
+            onLocationClick={handleLocationClick}
+          />
+        )}
         <MapEvents />
       </MapContainer>
     </div>

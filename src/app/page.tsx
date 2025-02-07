@@ -11,7 +11,7 @@ const Home = () => {
         loading: () => <Loading />,
         ssr: false,
       }),
-    []
+    [],
   );
 
   return (

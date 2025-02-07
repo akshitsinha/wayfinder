@@ -5,17 +5,20 @@ An open-source Google Maps alternative made using OpenStreetMaps
 ## How to use WayFinder in development
 
 1. Clone the repository:
+
    ```sh
    git clone https://github.com/akshitsinha/wayfinder.git
    cd wayfinder
    ```
 
 2. Install the dependencies:
+
    ```sh
    npm install
    ```
 
 3. Start the development server:
+
    ```sh
    npm run dev
    ```
@@ -25,6 +28,7 @@ An open-source Google Maps alternative made using OpenStreetMaps
 ## How to use WayFinder in production
 
 1. Build the project:
+
    ```sh
    npm run build
    ```

@@ -1,6 +1,6 @@
+import { Button } from "@/components/ui/button";
 import { Marker, Popup } from "react-leaflet";
 import { LatLngExpression } from "leaflet";
-import { Button } from "@/components/ui/button";
 import { MapPinCheck, MapPinMinus, Navigation } from "lucide-react";
 import store from "store2";
 
@@ -15,7 +15,7 @@ const CustomMarker = ({ position, address, onClear }: MarkerProps) => {
     const markedLocations = store.get("markedLocations") || [];
     const isDuplicate = markedLocations.some(
       (location: { address: string; position: LatLngExpression }) =>
-        location.address === address
+        location.address === address,
     );
 
     if (!isDuplicate) {
@@ -31,7 +31,7 @@ const CustomMarker = ({ position, address, onClear }: MarkerProps) => {
     let markedLocations = store.get("markedLocations") || [];
     markedLocations = markedLocations.filter(
       (location: { address: string; position: LatLngExpression }) =>
-        location.address !== address
+        location.address !== address,
     );
     store.set("markedLocations", markedLocations);
     onClear();
@@ -44,10 +44,7 @@ const CustomMarker = ({ position, address, onClear }: MarkerProps) => {
           <h2>{address}</h2>
           <p>Geolocation: {position.toString()}</p>
           <div className="flex space-x-2">
-            <Button
-              variant="secondary"
-              onClick={markLocation}
-            >
+            <Button variant="secondary" onClick={markLocation}>
               <MapPinCheck size={18} />
               Mark
             </Button>
