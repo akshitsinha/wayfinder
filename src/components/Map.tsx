@@ -13,6 +13,7 @@ import { Locate, Menu } from "lucide-react";
 import Marker from "@/components/Marker";
 import UserMenu from "@/components/UserMenu";
 import store from "store2";
+import { useSearchParams } from "next/navigation";
 
 interface MapProps {
   posix: LatLngExpression | LatLngTuple;
@@ -98,6 +99,16 @@ const LocateButton = () => {
 
 const Map = (map: MapProps) => {
   const { zoom = defaults.zoom, posix } = map;
+  const searchParams = useSearchParams();
+  const latStr = searchParams.get("lat");
+  const lngStr = searchParams.get("lng");
+  const zoomStr = searchParams.get("zoom");
+  const initialPosix =
+    latStr && lngStr
+      ? new LatLng(parseFloat(latStr), parseFloat(lngStr))
+      : posix;
+  const initialZoom = zoomStr ? parseInt(zoomStr) : zoom;
+
   const [markerPosition, setMarkerPosition] = useState<{
     position: LatLngExpression;
     address: string;
@@ -131,14 +142,35 @@ const Map = (map: MapProps) => {
   const MapEvents = () => {
     const map = useMap();
     mapRef.current = map;
+
+    useEffect(() => {
+      const handleMoveEnd = () => {
+        const center = map.getCenter();
+        const zoom = map.getZoom();
+        const searchParams = new URLSearchParams();
+        searchParams.set("lat", center.lat.toString());
+        searchParams.set("lng", center.lng.toString());
+        searchParams.set("zoom", zoom.toString());
+        const newUrl = `${window.location.pathname}?${searchParams.toString()}`;
+        window.history.replaceState(null, "", newUrl);
+      };
+
+      map.on("moveend", handleMoveEnd);
+      handleMoveEnd();
+
+      return () => {
+        map.off("moveend", handleMoveEnd);
+      };
+    }, [map]);
+
     return null;
   };
 
   return (
     <div id="map" className="h-screen w-full relative">
       <MapContainer
-        center={posix}
-        zoom={zoom}
+        center={initialPosix}
+        zoom={initialZoom}
         scrollWheelZoom={true}
         className="h-full w-full"
       >

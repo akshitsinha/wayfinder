@@ -4,6 +4,8 @@ import { LatLngExpression } from "leaflet";
 import { X } from "lucide-react";
 import store from "store2";
 import { MarkedLocation } from "@/components/Map";
+import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 
 const UserMenu = ({
   onClose,
@@ -22,6 +24,7 @@ const UserMenu = ({
           <X size={24} />
         </Button>
       </div>
+      <Separator className="mb-4" />
       <div>
         <h3 className="text-lg font-semibold mb-2">Marked Locations</h3>
         <ul>
@@ -40,12 +43,30 @@ const UserMenu = ({
       </div>
       <div className="mt-4">
         <h3 className="text-lg font-semibold mb-2">Preferences</h3>
-        <Button
-          variant="secondary"
-          onClick={() => console.log("Edit Preferences")}
-        >
-          Edit Preferences
-        </Button>
+        <div className="w-full space-y-6">
+          <div>
+            <h3 className="mb-4 text-lg font-medium">Sample Category</h3>
+            <div className="space-y-4">
+              <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                <div className="space-y-0.5">
+                  <div>Sample 1</div>
+                </div>
+                <div>
+                  <Switch />
+                </div>
+              </div>
+
+              <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                <div className="space-y-0.5">
+                  <div>Sample 2</div>
+                </div>
+                <div>
+                  <Switch />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
