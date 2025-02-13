@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Marker, Popup } from "react-leaflet";
 import { LatLngExpression } from "leaflet";
 import { MapPinCheck, MapPinMinus, Navigation } from "lucide-react";
-import { MarkedLocation } from "@/components/Map";
+import { MarkedLocation } from "@/components/map";
 import store from "store2";
 
 interface MarkerProps {

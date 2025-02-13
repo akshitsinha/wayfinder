@@ -1,11 +1,11 @@
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { LatLngExpression } from "leaflet";
 import { X } from "lucide-react";
 import store from "store2";
-import { MarkedLocation } from "@/components/Map";
+import { MarkedLocation } from "@/components/map";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 const UserMenu = ({
   onClose,
@@ -26,7 +26,7 @@ const UserMenu = ({
       </div>
       <Separator className="mb-4" />
       <div>
-        <h3 className="text-lg font-semibold mb-2">Marked Locations</h3>
+        <h3 className="text-2xl font-semibold mb-2">Marked Locations</h3>
         <ul>
           {markedLocations &&
             markedLocations.map((location, index) => (
@@ -42,7 +42,7 @@ const UserMenu = ({
         </ul>
       </div>
       <div className="mt-4">
-        <h3 className="text-lg font-semibold mb-2">Preferences</h3>
+        <h3 className="text-2xl font-semibold mb-2">Preferences</h3>
         <div className="w-full space-y-6">
           <div>
             <h3 className="mb-4 text-lg font-medium">Sample Category</h3>

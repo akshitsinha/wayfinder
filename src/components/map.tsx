@@ -8,12 +8,12 @@ import "leaflet-defaulticon-compatibility";
 import "leaflet-control-geocoder/dist/Control.Geocoder.css";
 import { geocoder as geoCoder } from "leaflet-control-geocoder";
 import { useEffect, useState, useRef } from "react";
-import { Button } from "@/components/ui/button";
 import { Locate, Menu } from "lucide-react";
-import Marker from "@/components/Marker";
-import UserMenu from "@/components/UserMenu";
-import store from "store2";
 import { useSearchParams } from "next/navigation";
+import store from "store2";
+import Marker from "@/components/marker";
+import { Button } from "@/components/ui/button";
+import UserMenu from "@/components/sidebar";
 
 interface MapProps {
   posix: LatLngExpression | LatLngTuple;
@@ -99,6 +99,7 @@ const LocateButton = () => {
 
 const Map = (map: MapProps) => {
   const { zoom = defaults.zoom, posix } = map;
+  const mapRef = useRef<L.Map>(null);
   const searchParams = useSearchParams();
   const latStr = searchParams.get("lat");
   const lngStr = searchParams.get("lng");
@@ -109,20 +110,17 @@ const Map = (map: MapProps) => {
       : posix;
   const initialZoom = zoomStr ? parseInt(zoomStr) : zoom;
 
-  const [markerPosition, setMarkerPosition] = useState<{
-    position: LatLngExpression;
-    address: string;
-  } | null>(null);
+  const [markerPosition, setMarkerPosition] = useState<MarkedLocation | null>(
+    null,
+  );
   const [menuOpen, setMenuOpen] = useState(false);
-  const [markedLocations, setMarkedLocations] = useState<MarkedLocation[]>([]);
-  const mapRef = useRef<L.Map>(null);
+  const [markedLocations, setMarkedLocations] = useState<MarkedLocation[]>(
+    store.get("markedLocations") || [],
+  );
 
   useEffect(() => {
-    const storedLocations: MarkedLocation[] =
-      store.get("markedLocations") || [];
-
     setMarkedLocations(
-      storedLocations.map((location) => {
+      markedLocations.map((location) => {
         const { lat, lng } = location.position as LatLng;
         return {
           ...location,
