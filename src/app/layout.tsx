@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import ServiceWorkerRegistration from "@/components/ServiceWorker";
 import "./globals.css";
-import ServiceWorkerRegistration from "@/lib/sw";
 
 export const metadata: Metadata = {
   title: "Wayfinder",
   description: "An open source wayfinding app",
+  keywords: ["navigation", "wayfinding", "maps"],
+  creator: "Akshit Sinha",
 };
 
 export default function RootLayout({
