@@ -8,16 +8,18 @@ import "leaflet-defaulticon-compatibility";
 import "leaflet-control-geocoder/dist/Control.Geocoder.css";
 import { useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { SidebarProvider } from "@/components/ui/sidebar";
 import {
   AutoLocate,
   LocateButton,
+  PointsOfInterestMarker,
   SearchControl,
   ZoomControl,
 } from "@/components/MapUtils";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import AppSidebar, { MapSidebarButton } from "@/components/Sidebar";
 import CustomMarker from "@/components/Marker";
 import useLocationStore from "@/lib/locationStore";
+import usePreferencesStore from "@/lib/preferenceStore";
 
 type MapProps = {
   posix: LatLngExpression | LatLngTuple;
@@ -41,9 +43,18 @@ const Map = (mapProps: MapProps) => {
       : posix;
   const initialZoom = zoomStr ? parseInt(zoomStr) : zoom;
   const locations = useLocationStore((state) => state.locations);
+  const showWheelchairs = usePreferencesStore((state) => state.showWheelchairs);
+  const showElevators = usePreferencesStore((state) => state.showElevators);
+  const showWashrooms = usePreferencesStore((state) => state.showWashrooms);
 
   const MapEvents = () => {
     const map = useMap();
+    const selectedLocation = useLocationStore(
+      (state) => state.selectedLocation,
+    );
+    const clearSelectedLocation = useLocationStore(
+      (state) => state.setSelectedLocation,
+    );
 
     useEffect(() => {
       const handleMoveEnd = () => {
@@ -63,6 +74,13 @@ const Map = (mapProps: MapProps) => {
         map.off("moveend", handleMoveEnd);
       };
     }, [map]);
+
+    useEffect(() => {
+      if (selectedLocation) {
+        map.panTo(selectedLocation);
+        clearSelectedLocation(null);
+      }
+    }, [selectedLocation, map, clearSelectedLocation]);
 
     return null;
   };
@@ -101,6 +119,27 @@ const Map = (mapProps: MapProps) => {
         </div>
         <MapEvents />
         <AutoLocate />
+        {showWheelchairs && (
+          <PointsOfInterestMarker
+            poi="wheelchair=yes"
+            color="blue"
+            tooltip="Wheelchair accessible"
+          />
+        )}
+        {showElevators && (
+          <PointsOfInterestMarker
+            poi="elevator=yes"
+            color="yellow"
+            tooltip="Elevator accessible"
+          />
+        )}
+        {showWashrooms && (
+          <PointsOfInterestMarker
+            poi="amenity=toilets"
+            color="green"
+            tooltip="Washroom accessible"
+          />
+        )}
       </MapContainer>
     </SidebarProvider>
   );

@@ -2,14 +2,8 @@ import { CircleMarker, Tooltip, useMap } from "react-leaflet";
 import { useState, useRef, useEffect } from "react";
 import { LatLngExpression } from "leaflet";
 import { Locate, Plus, Minus, Search } from "lucide-react";
-import {
-  Command,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandGroup,
-} from "@/components/ui/command";
-import useLocationStore from "@/lib/locationStore";
+import * as Dialog from "@radix-ui/react-dialog";
+import CustomMarker from "@/components/Marker";
 
 type OverpassPoint = {
   lat: number;
@@ -101,7 +95,6 @@ const Button = ({
 
 const ZoomControl = () => {
   const map = useMap();
-
   const zoomIn = () => map.zoomIn();
   const zoomOut = () => map.zoomOut();
 
@@ -125,9 +118,7 @@ const locateUser = (): Promise<LatLngExpression> => {
           const { latitude, longitude } = position.coords;
           resolve([latitude, longitude]);
         },
-        (error) => {
-          reject(error);
-        },
+        (error) => reject(error),
       );
     } else {
       reject(new Error("Geolocation is not supported by this browser."));
@@ -140,9 +131,7 @@ const AutoLocate = () => {
 
   useEffect(() => {
     locateUser()
-      .then((userLocation) => {
-        map.setView(userLocation);
-      })
+      .then((userLocation) => map.setView(userLocation))
       .catch(() => {});
   }, [map]);
 
@@ -154,9 +143,7 @@ const LocateButton = () => {
 
   const handleLocateUser = () => {
     locateUser()
-      .then((userLocation) => {
-        map.setView(userLocation);
-      })
+      .then((userLocation) => map.setView(userLocation))
       .catch(() => {});
   };
 
@@ -168,135 +155,113 @@ const LocateButton = () => {
 };
 
 type SearchResult = {
-  place_id: string | number;
+  place_id: string;
+  name: string;
   display_name: string;
-  lat: string;
-  lon: string;
-  place_rank: number;
+  lat: number;
+  lon: number;
 };
 
-type SearchResultsProps = {
-  query: string;
+const SearchResultItem = ({
+  result,
+  onSelect,
+}: {
+  result: SearchResult;
   onSelect: (result: SearchResult) => void;
-};
-
-const SearchResults = ({ query, onSelect }: SearchResultsProps) => {
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const searchAbortControllerRef = useRef<AbortController | null>(null);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (query.length > 2) {
-        if (searchAbortControllerRef.current) {
-          searchAbortControllerRef.current.abort();
-        }
-        const controller = new AbortController();
-        searchAbortControllerRef.current = controller;
-        fetch(
-          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-            query,
-          )}`,
-          {
-            headers: { Accept: "application/json" },
-            signal: controller.signal,
-          },
-        )
-          .then((res) => res.json())
-          .then((data: SearchResult[]) => setResults(data))
-          .catch((err) => {
-            if (err.name !== "AbortError") {
-              console.error(err);
-            }
-          });
-      } else {
-        setResults([]);
-      }
-    }, 500);
-    return () => {
-      clearTimeout(timer);
-      if (searchAbortControllerRef.current) {
-        searchAbortControllerRef.current.abort();
-      }
-    };
-  }, [query]);
+}) => {
+  const map = useMap();
+  const handleClick = () => {
+    onSelect(result);
+    const pos: LatLngExpression = [result.lat, result.lon];
+    map.setView(pos, 14);
+  };
 
   return (
-    <CommandList className="max-h-auto overflow-y-scroll">
-      <CommandGroup>
-        {results.map((result) => (
-          <CommandItem key={result.place_id} onSelect={() => onSelect(result)}>
-            {result.display_name}
-          </CommandItem>
-        ))}
-      </CommandGroup>
-    </CommandList>
+    <div
+      className="p-2 rounded-md cursor-pointer hover:bg-gray-200"
+      onClick={handleClick}
+    >
+      {result.display_name}
+    </div>
   );
 };
 
 const SearchControl = () => {
-  const map = useMap();
   const [open, setOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
-  const addLocation = useLocationStore((state) => state.addLocation);
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [selectedSearchResult, setSelectedSearchResult] =
+    useState<SearchResult | null>(null);
 
   useEffect(() => {
-    if (open && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [open]);
+    const delayDebounceFn = setTimeout(() => {
+      if (query) {
+        fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&limit=10&q=${encodeURIComponent(
+            query,
+          )}`,
+        )
+          .then((res) => res.json())
+          .then((data) => setResults(data))
+          .catch(() => {});
+      } else setResults([]);
+    }, 500);
+    return () => clearTimeout(delayDebounceFn);
+  }, [query]);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && open) {
-        setOpen(false);
-      }
-      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        setOpen((prev) => !prev);
-      }
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.metaKey && event.key === "k") setOpen(true);
     };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [open]);
-
-  const handleSelectResult = (result: SearchResult) => {
-    const lat = parseFloat(result.lat);
-    const lon = parseFloat(result.lon);
-    map.setView([lat, lon]);
-    addLocation({ address: result.display_name, position: [lat, lon] });
-    setOpen(false);
-    setSearchQuery("");
-  };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
     <>
-      <Button onClick={() => setOpen((prev) => !prev)}>
+      <Button onClick={() => setOpen(true)}>
         <Search />
       </Button>
-      {open && (
-        <>
-          <div
-            className="fixed inset-0 z-40"
-            onClick={() => setOpen(false)}
-          ></div>
-          <div
-            className="fixed z-50 top-20 left-1/2 transform -translate-x-1/2"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Command className="w-96 shadow-lg rounded-lg">
-              <CommandInput
-                ref={inputRef}
-                placeholder="Search everywhere..."
-                onInput={(e) => setSearchQuery(e.currentTarget.value)}
-              />
-              <SearchResults
-                query={searchQuery}
-                onSelect={handleSelectResult}
-              />
-            </Command>
-          </div>
-        </>
+      <Dialog.Root open={open} onOpenChange={setOpen}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 bg-black/10 z-[999]">
+            <Dialog.Content className="fixed top-20 left-1/2 transform -translate-x-1/2 w-[90vw] max-w-[500px] bg-white p-4 shadow-md rounded-lg">
+              <Dialog.Title />
+              <Dialog.Description />
+              <div className="flex items-center gap-2">
+                <Search size={24} />
+                <input
+                  autoFocus
+                  type="text"
+                  placeholder="Search everywhere"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  className="w-full p-1 border-none rounded focus:outline-none"
+                />
+              </div>
+              {results.length > 0 && (
+                <div className="max-h-[30vh] overflow-y-auto py-2">
+                  {results.map((result, id) => (
+                    <SearchResultItem
+                      key={id}
+                      result={result}
+                      onSelect={(r) => {
+                        setSelectedSearchResult(r);
+                        setOpen(false);
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+            </Dialog.Content>
+          </Dialog.Overlay>
+        </Dialog.Portal>
+      </Dialog.Root>
+      {selectedSearchResult && (
+        <CustomMarker
+          position={[selectedSearchResult.lat, selectedSearchResult.lon]}
+          address={selectedSearchResult.name}
+        />
       )}
     </>
   );

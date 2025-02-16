@@ -10,7 +10,6 @@ import {
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
 import usePreferencesStore from "@/lib/preferenceStore";
-// Import Switch from shadcn ui
 import { Switch } from "@/components/ui/switch";
 
 export const MapSidebarButton = () => {
@@ -19,12 +18,14 @@ export const MapSidebarButton = () => {
 };
 
 const AppSidebar = () => {
-  const { locations, clearLocations } = useLocationStore();
+  const { locations, clearLocations, setSelectedLocation } = useLocationStore();
   const {
     showWheelchairs,
     showElevators,
+    showWashrooms,
     setShowWheelchairs,
     setShowElevators,
+    setShowWashrooms,
   } = usePreferencesStore();
 
   return (
@@ -40,20 +41,21 @@ const AppSidebar = () => {
           <SidebarGroupLabel className="text-xl font-semibold mb-2">
             Locations
           </SidebarGroupLabel>
-          <SidebarGroupContent className="space-y-2">
-            {locations.length > 0 ? (
-              locations.map((loc, idx) => (
+          {locations.length > 0 ? (
+            <SidebarGroupContent className="space-y-2">
+              {locations.map((loc, idx) => (
                 <div
                   key={idx}
                   className="p-2 cursor-pointer rounded-md bg-gray-100 hover:bg-gray-200"
+                  onClick={() => setSelectedLocation(loc.position)}
                 >
                   {loc.address}
                 </div>
-              ))
-            ) : (
-              <div className="px-2 text-gray-500">No locations saved</div>
-            )}
-          </SidebarGroupContent>
+              ))}
+            </SidebarGroupContent>
+          ) : (
+            <div className="px-2 text-gray-500">No locations saved</div>
+          )}
           {locations.length > 0 && (
             <SidebarMenuButton
               className="mt-2"
@@ -87,6 +89,16 @@ const AppSidebar = () => {
                 id="elevators"
                 checked={showElevators}
                 onCheckedChange={setShowElevators}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <label htmlFor="washrooms" className="text-sm font-medium">
+                Show Accessible Washrooms
+              </label>
+              <Switch
+                id="washrooms"
+                checked={showWashrooms}
+                onCheckedChange={setShowWashrooms}
               />
             </div>
           </SidebarGroupContent>

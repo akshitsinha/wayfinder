@@ -12,6 +12,8 @@ type LocationState = {
   addLocation: (location: MarkedLocation) => void;
   removeLocation: (index: number) => void;
   clearLocations: () => void;
+  selectedLocation: LatLngExpression | null;
+  setSelectedLocation: (location: LatLngExpression | null) => void;
 };
 
 const useLocationStore = create<LocationState>()(
@@ -28,8 +30,14 @@ const useLocationStore = create<LocationState>()(
         })),
 
       clearLocations: () => set({ locations: [] }),
+
+      selectedLocation: null,
+      setSelectedLocation: (location) => set({ selectedLocation: location }),
     }),
-    { name: "marked-locations" },
+    {
+      name: "marked-locations",
+      partialize: (state) => ({ locations: state.locations }),
+    },
   ),
 );
 
