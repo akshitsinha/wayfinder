@@ -1,13 +1,14 @@
 "use client";
 
-import { MapContainer, TileLayer, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import { LatLng, LatLngExpression, LatLngTuple } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import "leaflet-defaulticon-compatibility";
 import "leaflet-control-geocoder/dist/Control.Geocoder.css";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
+import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import {
   AutoLocate,
   LocateButton,
@@ -20,18 +21,15 @@ import AppSidebar, { MapSidebarButton } from "@/components/Sidebar";
 import CustomMarker from "@/components/Marker";
 import useLocationStore from "@/lib/locationStore";
 import usePreferencesStore from "@/lib/preferenceStore";
+import { Button } from "@/components/ui/button";
 
 type MapProps = {
   posix: LatLngExpression | LatLngTuple;
   zoom?: number;
 };
 
-const defaults = {
-  zoom: 14,
-};
-
 const Map = (mapProps: MapProps) => {
-  const { zoom = defaults.zoom, posix } = mapProps;
+  const { zoom = 15, posix } = mapProps;
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const latStr = searchParams.get("lat");
@@ -43,9 +41,34 @@ const Map = (mapProps: MapProps) => {
       : posix;
   const initialZoom = zoomStr ? parseInt(zoomStr) : zoom;
   const locations = useLocationStore((state) => state.locations);
-  const showWheelchairs = usePreferencesStore((state) => state.showWheelchairs);
-  const showElevators = usePreferencesStore((state) => state.showElevators);
-  const showWashrooms = usePreferencesStore((state) => state.showWashrooms);
+  const markers = usePreferencesStore((state) => state.markers);
+  const [contextMenu, setContextMenu] = useState<{
+    visible: boolean;
+    x: number;
+    y: number;
+    latlng: LatLng | null;
+  }>({ visible: false, x: 0, y: 0, latlng: null });
+  const [customMarkers, setCustomMarkers] = useState<
+    {
+      position: LatLng;
+      address: string;
+    }[]
+  >([]);
+  const [infoDialogOpen, setInfoDialogOpen] = useState(false);
+  const [infoContent, setInfoContent] = useState("");
+
+  const fetchPlaceInfo = async (position: LatLng): Promise<string> => {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${position.lat}&lon=${position.lng}`,
+      );
+      const data = await res.json();
+      return data.display_name || "nothing found";
+    } catch (error) {
+      console.error(error);
+      return "nothing found";
+    }
+  };
 
   const MapEvents = () => {
     const map = useMap();
@@ -85,6 +108,34 @@ const Map = (mapProps: MapProps) => {
     return null;
   };
 
+  const ContextMenuHandler = () => {
+    useMapEvents({
+      contextmenu: (e) => {
+        e.originalEvent.preventDefault();
+        setContextMenu({
+          visible: true,
+          x: e.containerPoint.x,
+          y: e.containerPoint.y,
+          latlng: e.latlng,
+        });
+      },
+    });
+    return null;
+  };
+
+  const fetchAddress = async (position: LatLng): Promise<string> => {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${position.lat}&lon=${position.lng}`,
+      );
+      const data = await res.json();
+      return data.display_name || "Custom Marker";
+    } catch (error) {
+      console.error(error);
+      return "Custom Marker";
+    }
+  };
+
   return (
     <SidebarProvider
       id="map"
@@ -111,6 +162,13 @@ const Map = (mapProps: MapProps) => {
             address={location.address}
           />
         ))}
+        {customMarkers.map((marker, idx) => (
+          <CustomMarker
+            key={`custom-${idx}`}
+            position={marker.position}
+            address={marker.address}
+          />
+        ))}
         <div className="absolute top-0 right-0 p-4 z-[999] flex flex-col items-center space-y-3">
           <MapSidebarButton />
           <ZoomControl />
@@ -119,28 +177,78 @@ const Map = (mapProps: MapProps) => {
         </div>
         <MapEvents />
         <AutoLocate />
-        {showWheelchairs && (
-          <PointsOfInterestMarker
-            poi="wheelchair=yes"
-            color="blue"
-            tooltip="Wheelchair accessible"
-          />
+        {Object.entries(markers).map(([key, config]) =>
+          config.visible ? (
+            <PointsOfInterestMarker
+              key={key}
+              poi={config.poi}
+              color={config.color}
+              tooltip={config.tooltip}
+            />
+          ) : null,
         )}
-        {showElevators && (
-          <PointsOfInterestMarker
-            poi="elevator=yes"
-            color="yellow"
-            tooltip="Elevator accessible"
-          />
-        )}
-        {showWashrooms && (
-          <PointsOfInterestMarker
-            poi="amenity=toilets"
-            color="green"
-            tooltip="Washroom accessible"
-          />
+        <ContextMenuHandler />
+        {contextMenu.visible && contextMenu.latlng && (
+          <div
+            style={{ top: contextMenu.y, left: contextMenu.x }}
+            className="absolute z-[1000] bg-white rounded border p-2 shadow"
+            onMouseLeave={() =>
+              setContextMenu((prev) => ({ ...prev, visible: false }))
+            }
+          >
+            <div
+              className="cursor-pointer p-1 rounded hover:bg-gray-200"
+              onClick={async () => {
+                const address = await fetchAddress(contextMenu.latlng!);
+                setCustomMarkers((prev) => [
+                  ...prev,
+                  { position: contextMenu.latlng!, address },
+                ]);
+
+                setContextMenu((prev) => ({ ...prev, visible: false }));
+              }}
+            >
+              Mark Place
+            </div>
+            <div
+              className="cursor-pointer p-1 hover:bg-gray-200"
+              onClick={() => {
+                (async () => {
+                  const info = await fetchPlaceInfo(contextMenu.latlng!);
+                  setInfoContent(info);
+                  setInfoDialogOpen(true);
+                })();
+                setContextMenu((prev) => ({ ...prev, visible: false }));
+              }}
+            >
+              Show Information
+            </div>
+          </div>
         )}
       </MapContainer>
+      <AlertDialog.Root open={infoDialogOpen} onOpenChange={setInfoDialogOpen}>
+        <AlertDialog.Portal>
+          <AlertDialog.Overlay className="fixed inset-0 bg-black bg-opacity-30 z-[1000]" />
+          <AlertDialog.Content className="fixed top-1/2 left-1/2 max-w-md w-full -translate-x-1/2 -translate-y-1/2 bg-white p-5 rounded-lg shadow-lg z-[1000]">
+            <AlertDialog.Title className="font-bold text-lg">
+              Place Information
+            </AlertDialog.Title>
+            <AlertDialog.Description className="mt-4">
+              {infoContent}
+            </AlertDialog.Description>
+            <div className="mt-6 flex justify-end space-x-2">
+              <AlertDialog.Action asChild>
+                <Button
+                  variant="secondary"
+                  onClick={() => setInfoDialogOpen(false)}
+                >
+                  OK
+                </Button>
+              </AlertDialog.Action>
+            </div>
+          </AlertDialog.Content>
+        </AlertDialog.Portal>
+      </AlertDialog.Root>
     </SidebarProvider>
   );
 };

@@ -14,7 +14,7 @@ const Home = () => {
     [],
   );
 
-  return <Map posix={[19.0859811, 72.8639597]} />;
+  return <Map posix={[28.6316544449, 77.22088336944]} />;
 };
 
 export default Home;
