@@ -5,7 +5,6 @@ import { LatLng, LatLngExpression, LatLngTuple } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import "leaflet-defaulticon-compatibility";
-import "leaflet-control-geocoder/dist/Control.Geocoder.css";
 import { useState, useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
@@ -19,13 +18,17 @@ import {
 import { SidebarProvider } from "@/components/ui/sidebar";
 import AppSidebar, { MapSidebarButton } from "@/components/Sidebar";
 import CustomMarker from "@/components/Marker";
-import useLocationStore from "@/lib/locationStore";
+import useLocationStore, { MarkedLocation } from "@/lib/locationStore";
 import usePreferencesStore from "@/lib/preferenceStore";
 import { Button } from "@/components/ui/button";
 
 type MapProps = {
   posix: LatLngExpression | LatLngTuple;
   zoom?: number;
+};
+
+type OSMResponse = {
+  display_name: string;
 };
 
 const Map = (mapProps: MapProps) => {
@@ -48,25 +51,23 @@ const Map = (mapProps: MapProps) => {
     y: number;
     latlng: LatLng | null;
   }>({ visible: false, x: 0, y: 0, latlng: null });
-  const [customMarkers, setCustomMarkers] = useState<
-    {
-      position: LatLng;
-      address: string;
-    }[]
-  >([]);
+  const [customMarkers, setCustomMarkers] = useState<MarkedLocation[]>([]);
   const [infoDialogOpen, setInfoDialogOpen] = useState(false);
   const [infoContent, setInfoContent] = useState("");
 
-  const fetchPlaceInfo = async (position: LatLng): Promise<string> => {
+  const fetchReverseGeocode = async (
+    position: LatLng,
+    fallback: string = "No information found",
+  ): Promise<OSMResponse> => {
     try {
       const res = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${position.lat}&lon=${position.lng}`,
       );
-      const data = await res.json();
-      return data.display_name || "nothing found";
+
+      return res.json();
     } catch (error) {
       console.error(error);
-      return "nothing found";
+      return { display_name: fallback };
     }
   };
 
@@ -121,19 +122,6 @@ const Map = (mapProps: MapProps) => {
       },
     });
     return null;
-  };
-
-  const fetchAddress = async (position: LatLng): Promise<string> => {
-    try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${position.lat}&lon=${position.lng}`,
-      );
-      const data = await res.json();
-      return data.display_name || "Custom Marker";
-    } catch (error) {
-      console.error(error);
-      return "Custom Marker";
-    }
   };
 
   return (
@@ -199,26 +187,38 @@ const Map = (mapProps: MapProps) => {
             <div
               className="cursor-pointer p-1 rounded hover:bg-gray-200"
               onClick={async () => {
-                const address = await fetchAddress(contextMenu.latlng!);
-                setCustomMarkers((prev) => [
-                  ...prev,
-                  { position: contextMenu.latlng!, address },
-                ]);
-
-                setContextMenu((prev) => ({ ...prev, visible: false }));
+                await fetchReverseGeocode(contextMenu.latlng!)
+                  .then((res) => {
+                    if (!contextMenu.latlng) return;
+                    setCustomMarkers((prev) => [
+                      ...prev,
+                      {
+                        position: [
+                          contextMenu.latlng!.lat,
+                          contextMenu.latlng!.lng,
+                        ],
+                        address: res.display_name,
+                      },
+                    ]);
+                  })
+                  .finally(() =>
+                    setContextMenu((prev) => ({ ...prev, visible: false })),
+                  );
               }}
             >
               Mark Place
             </div>
             <div
               className="cursor-pointer p-1 hover:bg-gray-200"
-              onClick={() => {
-                (async () => {
-                  const info = await fetchPlaceInfo(contextMenu.latlng!);
-                  setInfoContent(info);
-                  setInfoDialogOpen(true);
-                })();
-                setContextMenu((prev) => ({ ...prev, visible: false }));
+              onClick={async () => {
+                await fetchReverseGeocode(contextMenu.latlng!)
+                  .then((res) => {
+                    setInfoContent(res.display_name);
+                    setInfoDialogOpen(true);
+                  })
+                  .finally(() =>
+                    setContextMenu((prev) => ({ ...prev, visible: false })),
+                  );
               }}
             >
               Show Information

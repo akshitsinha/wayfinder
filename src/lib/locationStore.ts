@@ -2,7 +2,7 @@ import { LatLngExpression } from "leaflet";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-type MarkedLocation = {
+export type MarkedLocation = {
   address: string;
   position: LatLngExpression;
 };
