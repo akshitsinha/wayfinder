@@ -21,6 +21,7 @@ import CustomMarker from "@/components/Marker";
 import useLocationStore, { MarkedLocation } from "@/lib/locationStore";
 import usePreferencesStore from "@/lib/preferenceStore";
 import { Button } from "@/components/ui/button";
+import Assistant from "@/components/Assistant";
 
 type MapProps = {
   posix: LatLngExpression | LatLngTuple;
@@ -162,6 +163,7 @@ const Map = (mapProps: MapProps) => {
           <ZoomControl />
           <LocateButton />
           <SearchControl />
+          <Assistant />
         </div>
         <MapEvents />
         <AutoLocate />
