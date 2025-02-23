@@ -78,7 +78,7 @@ const PointsOfInterestMarker = ({
   );
 };
 
-const Button = ({
+export const Button = ({
   children,
   onClick,
 }: {
@@ -240,7 +240,7 @@ const SearchControl = () => {
                 />
               </div>
               {results.length > 0 && (
-                <div className="max-h-[30vh] overflow-y-auto py-2">
+                <div className="max-h-[40vh] overflow-y-auto py-2">
                   {results.map((result, id) => (
                     <SearchResultItem
                       key={id}
