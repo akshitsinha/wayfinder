@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-const ServiceWorkerRegistration = () => {
+const ServiceWorkerRegistrar = () => {
   useEffect(() => {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker
@@ -15,4 +15,4 @@ const ServiceWorkerRegistration = () => {
   return null;
 };
 
-export default ServiceWorkerRegistration;
+export default ServiceWorkerRegistrar;
