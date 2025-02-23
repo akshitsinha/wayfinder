@@ -31,29 +31,29 @@ self.addEventListener("fetch", (event) => {
   const requestUrl = new URL(event.request.url);
 
   if (event.request.mode === "navigate") {
+    // Use network-first: try fetching, then update cache, else fallback to cache.
     event.respondWith(
-      caches
-        .match("/")
-        .then((response) => response || fetch(event.request))
+      fetch(event.request)
+        .then((networkResponse) => {
+          const responseClone = networkResponse.clone();
+          caches
+            .open(CACHE_NAME)
+            .then((cache) => cache.put("/", responseClone));
+          return networkResponse;
+        })
         .catch(() => caches.match("/")),
     );
   } else if (requestUrl.host.endsWith("tile.openstreetmap.org")) {
     event.respondWith(
-      caches.match(event.request).then((cachedResponse) => {
-        return (
-          cachedResponse ||
-          fetch(event.request).then((networkResponse) =>
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, networkResponse.clone());
-              return networkResponse;
-            }),
-          )
-        );
-      }),
-    );
-  } else {
-    event.respondWith(
-      fetch(event.request).catch(() => caches.match(event.request)),
+      fetch(event.request)
+        .then((networkResponse) => {
+          const responseClone = networkResponse.clone();
+          caches
+            .open(CACHE_NAME)
+            .then((cache) => cache.put(event.request, responseClone));
+          return networkResponse;
+        })
+        .catch(() => caches.match(event.request)),
     );
   }
 });

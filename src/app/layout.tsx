@@ -20,7 +20,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Wayfinder" />
       </head>
       <body>
-        {children}
+        <main>{children}</main>
         <ServiceWorkerRegistrar />
       </body>
     </html>

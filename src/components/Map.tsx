@@ -12,6 +12,7 @@ import {
   AutoLocate,
   LocateButton,
   PointsOfInterestMarker,
+  POISearchControl,
   SearchControl,
   ZoomControl,
 } from "@/components/MapUtils";
@@ -162,6 +163,7 @@ const Map = (mapProps: MapProps) => {
           <ZoomControl />
           <LocateButton />
           <SearchControl />
+          <POISearchControl />
         </div>
         <MapEvents />
         <AutoLocate />
