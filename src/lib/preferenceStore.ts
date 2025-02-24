@@ -10,9 +10,11 @@ type MarkerConfig = {
 
 type Preferences = {
   markers: Record<string, MarkerConfig>;
+  enableTTS: boolean;
   setMarker: (marker: string, value: boolean) => void;
   addMarker: (marker: string, config: MarkerConfig) => void;
   removeMarker: (marker: string) => void;
+  setAssistantTTS: (value: boolean) => void;
 };
 
 const usePreferencesStore = create<Preferences>()(
@@ -38,6 +40,7 @@ const usePreferencesStore = create<Preferences>()(
           visible: false,
         },
       },
+      enableTTS: true,
       setMarker: (marker, value) =>
         set((state) => ({
           markers: {
@@ -61,6 +64,10 @@ const usePreferencesStore = create<Preferences>()(
           delete newMarkers[marker];
           return { markers: newMarkers };
         }),
+      setAssistantTTS: (value: boolean) =>
+        set(() => ({
+          enableTTS: value,
+        })),
     }),
     { name: "user-preferences" },
   ),

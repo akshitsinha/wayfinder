@@ -29,7 +29,14 @@ export const MapSidebarButton = () => {
 
 const AppSidebar = () => {
   const { locations, clearLocations, setSelectedLocation } = useLocationStore();
-  const { markers, setMarker, addMarker, removeMarker } = usePreferencesStore();
+  const {
+    markers,
+    setMarker,
+    addMarker,
+    removeMarker,
+    enableTTS,
+    setAssistantTTS,
+  } = usePreferencesStore();
   const [open, setOpen] = useState(false);
   const [conflictOpen, setConflictOpen] = useState(false);
   const [customKey, setCustomKey] = useState("");
@@ -138,6 +145,13 @@ const AppSidebar = () => {
                 </ContextMenuContent>
               </ContextMenu>
             ))}
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium">Assistant TTS</label>
+              <Switch
+                checked={enableTTS}
+                onCheckedChange={(v) => setAssistantTTS(v)}
+              />
+            </div>
             <Button
               onClick={() => setOpen(true)}
               variant="secondary"

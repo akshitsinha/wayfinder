@@ -1,7 +1,5 @@
 # Wayfinder
 
-## Overview
-
 Wayfinder is an open-source maps application built with OpenStreetMaps. It offers a customizable and unopinionated alternative to popular map services with an intuitive user interface and experience.
 
 ## Features
@@ -12,13 +10,12 @@ Wayfinder is an open-source maps application built with OpenStreetMaps. It offer
 - **Locate Button:** Manually center the map on your current position with a user-friendly button.
 - **Address Search:** Search for locations using the Nominatim API to translate addresses into coordinates.
 - **POI Search:** Fetch and display points of interest dynamically via the Overpass API.
-- **Custom Marker Placement:** Right-click on the map to open a context menu for placing custom markers.
+- **Custom Marker Placement:** Place custom markers anywhere on the map, which can be easily revisited using the sidebar.
 - **Reverse Geocoding:** Retrieve detailed place information via reverse geocoding for selected map areas.
-- **Sidebar Integration:** Side navigation for accessing additional options and functionalities.
 - **Assistant Integration:** An integrated assistant offers guidance and support during map exploration using `Llama-3.2 1B Instruct` LLM running on the WebGPU.
-- **Context Menus:** Right-click anywhere on the map to add markers or view location details.
+- **Offline Support:** The map caches the areas you've already visited, allowing you to browse and use the map offline with limited capabilities using service worker features.
+- **PWA:** This is a Progressive Web App (PWA) that can be easily installed on desktop or mobile devices (both iPhone and Android) as a native application.
 - **Zustand Stores:** Utilizes Zustand for efficient and persistent state management, keeping marker preferences and map settings.
-- **Marker Settings:** Manage and customize marker configurations including type, style, and behavior through the preferences store.
 
 ## Installation & Usage
 

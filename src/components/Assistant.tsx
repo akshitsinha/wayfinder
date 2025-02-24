@@ -5,6 +5,7 @@ import { Bot, Brain, AudioLines, Download } from "lucide-react";
 import { CreateMLCEngine, MLCEngine } from "@mlc-ai/web-llm";
 import { Progress } from "@/components/ui/progress";
 import ReactMarkdown from "react-markdown";
+import usePreferencesStore from "@/lib/preferenceStore";
 
 type LLMLoadProgress = {
   progress: number;
@@ -27,6 +28,7 @@ const Assistant = () => {
     text: "Not yet started",
   });
   const [mlcEngine, setMLCEngine] = useState<MLCEngine | null>(null);
+  const { enableTTS } = usePreferencesStore();
 
   const initProgressCallback = (progressUpdate: LLMLoadProgress) => {
     setLLMProgress(progressUpdate);
@@ -90,12 +92,14 @@ const Assistant = () => {
           const res = response.choices[0].message.content;
           if (res != null) {
             setResponse(res);
-            textToSpeech(res);
+            if (enableTTS) {
+              textToSpeech(res);
+            }
           }
         });
-    }, 1000);
+    }, 500);
     return () => clearTimeout(timer);
-  }, [query, mlcEngine]);
+  }, [query, mlcEngine, enableTTS]);
 
   return (
     <>
