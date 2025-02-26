@@ -4,6 +4,7 @@ import { LatLngExpression } from "leaflet";
 import { Locate, Plus, Minus, Search, Milestone } from "lucide-react";
 import * as Dialog from "@radix-ui/react-dialog";
 import CustomMarker from "@/components/Marker";
+import usePreferencesStore from "@/lib/preferenceStore";
 
 type OverpassPoint = {
   lat: number;
@@ -128,12 +129,15 @@ const locateUser = (): Promise<LatLngExpression> => {
 
 const AutoLocate = () => {
   const map = useMap();
+  const { autoLocate } = usePreferencesStore();
 
   useEffect(() => {
-    locateUser()
-      .then((userLocation) => map.setView(userLocation))
-      .catch(() => {});
-  }, [map]);
+    if (autoLocate) {
+      locateUser()
+        .then((userLocation) => map.setView(userLocation))
+        .catch(() => {});
+    }
+  }, [map, autoLocate]);
 
   return null;
 };

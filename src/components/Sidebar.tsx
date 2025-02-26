@@ -36,6 +36,8 @@ const AppSidebar = () => {
     removeMarker,
     enableTTS,
     setAssistantTTS,
+    autoLocate,
+    setAutoLocate,
   } = usePreferencesStore();
   const [open, setOpen] = useState(false);
   const [conflictOpen, setConflictOpen] = useState(false);
@@ -150,6 +152,13 @@ const AppSidebar = () => {
               <Switch
                 checked={enableTTS}
                 onCheckedChange={(v) => setAssistantTTS(v)}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium">Auto Locate</label>
+              <Switch
+                checked={autoLocate}
+                onCheckedChange={(v) => setAutoLocate(v)}
               />
             </div>
             <Button

@@ -11,10 +11,12 @@ type MarkerConfig = {
 type Preferences = {
   markers: Record<string, MarkerConfig>;
   enableTTS: boolean;
+  autoLocate: boolean;
   setMarker: (marker: string, value: boolean) => void;
   addMarker: (marker: string, config: MarkerConfig) => void;
   removeMarker: (marker: string) => void;
   setAssistantTTS: (value: boolean) => void;
+  setAutoLocate: (value: boolean) => void;
 };
 
 const usePreferencesStore = create<Preferences>()(
@@ -41,6 +43,7 @@ const usePreferencesStore = create<Preferences>()(
         },
       },
       enableTTS: true,
+      autoLocate: true,
       setMarker: (marker, value) =>
         set((state) => ({
           markers: {
@@ -67,6 +70,10 @@ const usePreferencesStore = create<Preferences>()(
       setAssistantTTS: (value: boolean) =>
         set(() => ({
           enableTTS: value,
+        })),
+      setAutoLocate: (value: boolean) =>
+        set(() => ({
+          autoLocate: value,
         })),
     }),
     { name: "user-preferences" },

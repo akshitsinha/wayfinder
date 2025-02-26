@@ -83,20 +83,28 @@ const Assistant = () => {
 
   useEffect(() => {
     if (!query.trim() || mlcEngine === null) return;
-    const timer = setTimeout(() => {
-      mlcEngine.chat.completions
-        .create({
-          messages: [{ role: "user", content: query }],
-        })
-        .then((response) => {
-          const res = response.choices[0].message.content;
-          if (res != null) {
-            setResponse(res);
-            if (enableTTS) {
-              textToSpeech(res);
-            }
-          }
-        });
+    const timer = setTimeout(async () => {
+      const stream = await mlcEngine.chat.completions.create({
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a web assistant made to provide answers to maps and other geographical questions and data, mostly relating to India.",
+          },
+          { role: "user", content: query },
+        ],
+        stream: true,
+      });
+
+      let res = "";
+      for await (const chunk of stream) {
+        res += chunk.choices[0].delta.content || "";
+        setResponse(res);
+      }
+
+      if (enableTTS && res) {
+        textToSpeech(res);
+      }
     }, 500);
     return () => clearTimeout(timer);
   }, [query, mlcEngine, enableTTS]);

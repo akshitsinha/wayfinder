@@ -6,14 +6,12 @@ Wayfinder is an open-source maps application built with OpenStreetMaps. It offer
 
 - **Dynamic Map View:** Powered by React Leaflet, the map supports smooth panning, zooming, and interactive tile layers.
 - **Tile Layers:** Uses OpenStreetMap tiles for up-to-date imagery and data.
-- **Auto Locate:** Automatically centers the map on the user's current location using geolocation services.
-- **Locate Button:** Manually center the map on your current position with a user-friendly button.
-- **Address Search:** Search for locations using the Nominatim API to translate addresses into coordinates.
+- **Geocoder Search:** Search for locations using the Nominatim API to translate addresses into coordinates and vice versa.
 - **POI Search:** Fetch and display points of interest dynamically via the Overpass API.
 - **Custom Marker Placement:** Place custom markers anywhere on the map, which can be easily revisited using the sidebar.
 - **Reverse Geocoding:** Retrieve detailed place information via reverse geocoding for selected map areas.
 - **Assistant Integration:** An integrated assistant offers guidance and support during map exploration using `Llama-3.2 1B Instruct` LLM running on the WebGPU.
-- **Offline Support:** The map caches the areas you've already visited, allowing you to browse and use the map offline with limited capabilities using service worker features.
+- **Offline Support:** The map caches the areas you've already visited, allowing you to browse and use the map offline with limited capabilities using service worker.
 - **PWA:** This is a Progressive Web App (PWA) that can be easily installed on desktop or mobile devices (both iPhone and Android) as a native application.
 - **Zustand Stores:** Utilizes Zustand for efficient and persistent state management, keeping marker preferences and map settings.
 
