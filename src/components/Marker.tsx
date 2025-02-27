@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Marker, Popup } from "react-leaflet";
-import { MapPinCheck, MapPinMinus, Navigation } from "lucide-react";
+import { MapPinCheck, MapPinMinus } from "lucide-react";
 import useLocationStore, { MarkedLocation } from "@/lib/locationStore";
 
 const CustomMarker = (marker: MarkedLocation) => {
@@ -8,11 +8,12 @@ const CustomMarker = (marker: MarkedLocation) => {
   const addLocation = useLocationStore((state) => state.addLocation);
   const removeLocation = useLocationStore((state) => state.removeLocation);
 
+  const isMarked = locations.some(
+    (location) => location.address === marker.address,
+  );
+
   const markLocation = () => {
-    const isDuplicate = locations.some(
-      (location) => location.address === marker.address,
-    );
-    if (!isDuplicate) {
+    if (!isMarked) {
       addLocation(marker);
     } else {
       console.log("Location already marked");
@@ -35,21 +36,18 @@ const CustomMarker = (marker: MarkedLocation) => {
           <h2>{marker.address}</h2>
           <p>Geolocation: {marker.position.toString()}</p>
           <div className="flex space-x-2">
-            <Button variant="secondary" onClick={markLocation}>
-              <MapPinCheck size={18} />
-              Mark
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={() => console.log("Start navigation")}
-            >
-              <Navigation size={18} />
-              Navigate
-            </Button>
-            <Button variant="secondary" onClick={clearLocation}>
-              <MapPinMinus size={18} />
-              Clear
-            </Button>
+            {!isMarked && (
+              <Button variant="secondary" onClick={markLocation}>
+                <MapPinCheck size={18} />
+                Mark
+              </Button>
+            )}
+            {isMarked && (
+              <Button variant="secondary" onClick={clearLocation}>
+                <MapPinMinus size={18} />
+                Clear
+              </Button>
+            )}
           </div>
         </div>
       </Popup>

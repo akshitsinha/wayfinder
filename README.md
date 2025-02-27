@@ -13,6 +13,7 @@ Wayfinder is an open-source maps application built with OpenStreetMaps. It offer
 - **Assistant Integration:** An integrated assistant offers guidance and support during map exploration using `Llama-3.2 1B Instruct` LLM running on the WebGPU.
 - **Offline Support:** The map caches the areas you've already visited, allowing you to browse and use the map offline with limited capabilities using service worker.
 - **PWA:** This is a Progressive Web App (PWA) that can be easily installed on desktop or mobile devices (both iPhone and Android) as a native application.
+- **Navigation:** Provides turn-by-turn navigation and route planning, leveraging the OpenRouteService API for accurate and efficient routing.
 - **Zustand Stores:** Utilizes Zustand for efficient and persistent state management, keeping marker preferences and map settings.
 
 ## Installation & Usage
