@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { SidebarSeparator, useSidebar } from "@/components/ui/sidebar";
 import useLocationStore from "@/lib/locationStore";
@@ -45,6 +45,17 @@ const AppSidebar = () => {
   const [customPoi, setCustomPoi] = useState("");
   const [customColor, setCustomColor] = useState("");
   const [customTooltip, setCustomTooltip] = useState("");
+  const [isSWRegistered, setIsSWRegistered] = useState(false);
+
+  useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistration().then((registration) => {
+        if (registration) {
+          setIsSWRegistered(true);
+        }
+      });
+    }
+  }, []);
 
   const handleSave = () => {
     if (!customKey.trim() || !customPoi.trim()) {
@@ -75,6 +86,18 @@ const AppSidebar = () => {
     setCustomColor("");
     setCustomTooltip("");
     setOpen(false);
+  };
+
+  const handleSWRegistration = () => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then(() => {
+          console.log("Registered SW");
+          setIsSWRegistered(true);
+        })
+        .catch((error) => console.error("SW registration failed:", error));
+    }
   };
 
   return (
@@ -168,13 +191,23 @@ const AppSidebar = () => {
             >
               Add POI
             </Button>
+            <Button
+              onClick={handleSWRegistration}
+              variant="secondary"
+              className="w-full"
+              disabled={isSWRegistered}
+            >
+              {isSWRegistered
+                ? "Service Worker Installed"
+                : "Install Service Worker"}
+            </Button>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
       <Dialog.Root open={open} onOpenChange={setOpen}>
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-black/10 data-[state=open]:animate-overlayShow z-[999]" />
-          <Dialog.Content className="fixed left-1/2 top-1/2 max-h-[85vh] w-[90vw] max-w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-gray-100 p-6 z-[999]">
+          <Dialog.Overlay className="fixed inset-0 bg-black/10 data-[state=open]:animate-overlayShow z-999" />
+          <Dialog.Content className="fixed left-1/2 top-1/2 max-h-[85vh] w-[90vw] max-w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-gray-100 p-6 z-999">
             <Dialog.Title className="text-lg font-medium">
               Show Custom Points of Interests
             </Dialog.Title>
@@ -256,8 +289,8 @@ const AppSidebar = () => {
       </Dialog.Root>
       <AlertDialog.Root open={conflictOpen} onOpenChange={setConflictOpen}>
         <AlertDialog.Portal>
-          <AlertDialog.Overlay className="fixed inset-0 bg-black/50 z-[999]" />
-          <AlertDialog.Content className="fixed top-1/3 left-1/2 -translate-x-1/2 bg-white p-6 rounded shadow-md z-[1000]">
+          <AlertDialog.Overlay className="fixed inset-0 bg-black/50 z-999" />
+          <AlertDialog.Content className="fixed top-1/3 left-1/2 -translate-x-1/2 bg-white p-6 rounded shadow-md z-1000">
             <AlertDialog.Title className="text-lg font-bold">
               Conflict Detected
             </AlertDialog.Title>

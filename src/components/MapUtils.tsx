@@ -87,7 +87,7 @@ export const Button = ({
   onClick: () => void;
 }) => (
   <button
-    className="bg-white p-2 cursor-pointer rounded shadow"
+    className="bg-white p-2 cursor-pointer rounded shadow-sm"
     onClick={onClick}
   >
     {children}
@@ -228,7 +228,7 @@ const SearchControl = () => {
       </Button>
       <Dialog.Root open={open} onOpenChange={setOpen}>
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-black/10 z-[999]">
+          <Dialog.Overlay className="fixed inset-0 bg-black/10 z-999">
             <Dialog.Content className="fixed top-20 left-1/2 transform -translate-x-1/2 w-[90vw] max-w-[500px] bg-white p-4 shadow-md rounded-lg">
               <Dialog.Title />
               <Dialog.Description />
@@ -240,7 +240,7 @@ const SearchControl = () => {
                   placeholder="Search everywhere"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  className="w-full p-1 border-none rounded focus:outline-none"
+                  className="w-full p-1 border-none rounded focus:outline-hidden"
                 />
               </div>
               {results.length > 0 && (
@@ -332,7 +332,7 @@ const POISearchControl = () => {
       </Button>
       <Dialog.Root open={open} onOpenChange={setOpen}>
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-black/10 z-[999]">
+          <Dialog.Overlay className="fixed inset-0 bg-black/10 z-999">
             <Dialog.Content className="fixed top-20 left-1/2 transform -translate-x-1/2 w-[90vw] max-w-[500px] bg-white p-4 shadow-md rounded-lg">
               <Dialog.Title />
               <Dialog.Description />
@@ -344,7 +344,7 @@ const POISearchControl = () => {
                   placeholder="Search any point of interests using Overpass API"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  className="w-full p-1 border-none rounded focus:outline-none"
+                  className="w-full p-1 border-none rounded focus:outline-hidden"
                 />
               </div>
               {results.length > 0 && (
