@@ -166,7 +166,7 @@ const Navigation = ({ onRouteCalculated }: NavigationProps) => {
   };
 
   return (
-    <div className="absolute top-4 left-4 z-[999] bg-white p-3 rounded shadow-lg w-80">
+    <div className="absolute top-4 left-4 z-999 bg-white p-3 rounded shadow-lg w-80">
       <div className="flex flex-col space-y-3">
         <div className="relative">
           <div className="flex items-center relative">
@@ -203,7 +203,7 @@ const Navigation = ({ onRouteCalculated }: NavigationProps) => {
           </div>
 
           {showFromResults && fromResults.length > 0 && (
-            <div className="absolute mt-1 w-full bg-white border rounded-md shadow-lg z-[1000] max-y-50 overflow-y-scroll">
+            <div className="absolute mt-1 w-full bg-white border rounded-md shadow-lg z-1000 max-y-50 overflow-y-scroll">
               {fromResults.map((result) => (
                 <div
                   key={result.place_id}
@@ -243,7 +243,7 @@ const Navigation = ({ onRouteCalculated }: NavigationProps) => {
           </div>
 
           {showToResults && toResults.length > 0 && (
-            <div className="absolute mt-1 w-full bg-white border rounded-md shadow-lg z-[1000] max-y-50 overflow-y-scroll">
+            <div className="absolute mt-1 w-full bg-white border rounded-md shadow-lg z-1000 max-y-50 overflow-y-scroll">
               {toResults.map((result) => (
                 <div
                   key={result.place_id}

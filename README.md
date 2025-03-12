@@ -2,6 +2,8 @@
 
 Wayfinder is an open-source maps application built with OpenStreetMaps. It offers a customizable and unopinionated alternative to popular map services with an intuitive user interface and experience.
 
+![Wayfinder Demo](.github/demo.gif)
+
 ## Features
 
 - **Dynamic Map View:** Powered by React Leaflet, the map supports smooth panning, zooming, and interactive tile layers.
@@ -10,7 +12,7 @@ Wayfinder is an open-source maps application built with OpenStreetMaps. It offer
 - **POI Search:** Fetch and display points of interest dynamically via the Overpass API.
 - **Custom Marker Placement:** Place custom markers anywhere on the map, which can be easily revisited using the sidebar.
 - **Reverse Geocoding:** Retrieve detailed place information via reverse geocoding for selected map areas.
-- **Assistant Integration:** An integrated assistant offers guidance and support during map exploration using `Llama-3.2 1B Instruct` LLM running on the WebGPU.
+- **Assistant Integration:** An integrated assistant offers guidance and support during map exploration using `Llama-3.2 1B Instruct` LLM running on the WebGPU. *Note: The LLM is approximately 1 GB in size, so it may take some time to load the first time. However, it is cached locally, making subsequent loads almost instant.*
 - **Offline Support:** The map caches the areas you've already visited, allowing you to browse and use the map offline with limited capabilities using service worker.
 - **PWA:** This is a Progressive Web App (PWA) that can be easily installed on desktop or mobile devices (both iPhone and Android) as a native application.
 - **Navigation:** Provides turn-by-turn navigation and route planning, leveraging the OpenRouteService API for accurate and efficient routing.

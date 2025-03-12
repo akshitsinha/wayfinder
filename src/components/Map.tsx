@@ -267,7 +267,7 @@ const Map = (mapProps: MapProps) => {
             address={marker.address}
           />
         ))}
-        <div className="absolute top-0 right-0 p-4 z-[999] flex flex-col items-center space-y-3">
+        <div className="absolute top-0 right-0 p-4 z-999 flex flex-col items-center space-y-3">
           <MapSidebarButton />
           <ZoomControl />
           <LocateButton />
@@ -294,7 +294,7 @@ const Map = (mapProps: MapProps) => {
         {contextMenu.visible && contextMenu.latlng && (
           <div
             style={{ top: contextMenu.y, left: contextMenu.x }}
-            className="absolute z-[1000] bg-white rounded border p-2 shadow"
+            className="absolute z-1000 bg-white rounded border p-2 shadow-sm"
             onMouseLeave={() =>
               setContextMenu((prev) => ({ ...prev, visible: false }))
             }
@@ -343,7 +343,7 @@ const Map = (mapProps: MapProps) => {
       </MapContainer>
 
       {showNavigationPanel && routeInfo && (
-        <div className="absolute bottom-10 left-4 z-[1001] bg-white p-3 rounded shadow-lg max-w-sm">
+        <div className="absolute bottom-10 left-4 z-1001 bg-white p-3 rounded shadow-lg max-w-sm">
           <div className="flex justify-between items-center mb-2">
             <h3 className="font-bold">Navigation</h3>
             <Button
@@ -390,8 +390,8 @@ const Map = (mapProps: MapProps) => {
 
       <AlertDialog.Root open={infoDialogOpen} onOpenChange={setInfoDialogOpen}>
         <AlertDialog.Portal>
-          <AlertDialog.Overlay className="fixed inset-0 bg-black bg-opacity-30 z-[1000]" />
-          <AlertDialog.Content className="fixed top-1/2 left-1/2 max-w-md w-full -translate-x-1/2 -translate-y-1/2 bg-white p-5 rounded-lg shadow-lg z-[1000]">
+          <AlertDialog.Overlay className="fixed inset-0 bg-black bg-opacity-30 z-1000" />
+          <AlertDialog.Content className="fixed top-1/2 left-1/2 max-w-md w-full -translate-x-1/2 -translate-y-1/2 bg-white p-5 rounded-lg shadow-lg z-1000">
             <AlertDialog.Title className="font-bold text-lg">
               Place Information
             </AlertDialog.Title>
