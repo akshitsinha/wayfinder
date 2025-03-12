@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import ServiceWorkerRegistrar from "@/components/ServiceWorker";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -21,7 +20,6 @@ export default function RootLayout({
       </head>
       <body>
         <main>{children}</main>
-        <ServiceWorkerRegistrar />
       </body>
     </html>
   );
