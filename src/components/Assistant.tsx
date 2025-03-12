@@ -126,7 +126,7 @@ const Assistant = () => {
         }}
       >
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-black/10 z-[999]">
+          <Dialog.Overlay className="fixed inset-0 bg-black/10 z-999">
             <Dialog.Content className="fixed top-20 left-1/2 transform -translate-x-1/2 w-[90vw] max-w-[500px] bg-white p-4 shadow-md rounded-lg">
               <Dialog.Title />
               <Dialog.Description />
@@ -143,7 +143,7 @@ const Assistant = () => {
                     setResponse("");
                     setQuery(e.target.value);
                   }}
-                  className="w-full p-1 border-none rounded focus:outline-none"
+                  className="w-full p-1 border-none rounded focus:outline-hidden"
                 />
                 <Button onClick={startVoiceRecognition}>
                   <AudioLines />
